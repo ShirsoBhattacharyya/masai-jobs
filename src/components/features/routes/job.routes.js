@@ -38,14 +38,24 @@ router.get("/", async (req, res) => {
       }
       res.send({ message: "success", response: jobs });
     } else {
-      const jobs = await JobModel.find();
+      let { page, limit } = req.query;
+      if (!page) {
+        page = 1;
+      }
+      if (!limit) {
+        size = 10;
+      }
+      limit = +limit;
+      const jobs = await JobModel.find()
+        .skip((page - 1) * limit)
+        .limit(limit);
       res.send({ message: "success", response: jobs });
     }
   } catch (e) {
     res.status(500).send({ message: "error", response: e.message });
   }
 });
-// Adding a new item to the list
+// Adding a new job
 router.post("/newjob", async (req, res) => {
   let {
     company,
